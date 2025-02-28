@@ -1,31 +1,48 @@
+
+let bagItems;
+
 onLoad();
 
 function onLoad(){
+    let bagItemStr = localStorage.getItem('bagItem');
+    bagItems = bagItemStr ? JSON.parse(bagItemStr) : [];
+    updateBagItemCount();
     loadDisplayItem();
-    addToBag()
 }
 
 
-
-
-function addToBag(){
-    let bagItemCount = document.querySelector('.bag_Item_Count');
-
+function addToBag(bagId){
+    bagItems.push(bagId);
+    localStorage.setItem('bagItem', JSON.stringify(bagItems));
+    updateBagItemCount();
 }
 
 
+function updateBagItemCount(){
+    let bagItemContainer = document.querySelector('.bag_Item_Count');
+    if(bagItems.length > 0){
+        bagItemContainer.style.visibility = 'visible';
+        bagItemContainer.innerText = bagItems.length;
+    }else{
+        bagItemContainer.style.visibility = 'hidden';
+    }
 
-
+}
 
 
 function loadDisplayItem(){
-    let displayItemContainer = document.querySelector('.items_Container');
+    let itemdisplayContainer = document.querySelector('.items_Container');
 
-    let innerHtml = '';
+    if(!itemdisplayContainer){
+        return;
+    }
+
+    let innerHTML = '';
 
     items.forEach(item => {
 
-    innerHtml += `
+    innerHTML += `
+
     <div class="item_Container">
         <img class="image_Size" src="${item.image}" alt="">
         <div class="review">
@@ -38,11 +55,11 @@ function loadDisplayItem(){
             <span class="Original_Price">Rs: ${item.original_price}</span>
             <span class="discount">(${item.discount_percentage} Off)</span>
         </div>
-        <button class="add_to_Bag" onclick = "addToBag()">Add to Bag</button>
+        <button class="add_to_Bag" onclick = "addToBag(${item.id})">Add to Bag</button>
     </div>
+
     `
-    });
+})
+itemdisplayContainer.innerHTML = innerHTML;
 
-
-    displayItemContainer.innerHTML = innerHtml;
 }
