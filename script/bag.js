@@ -1,4 +1,4 @@
-
+const CONVENIENCE_FEE = 99; 
 let bagItemObjects;
 
 onLoad();
@@ -7,7 +7,56 @@ onLoad();
 function onLoad(){
     bagItemContainerObjects();
     displayBagItems();
+    totalBagSummary();
 }
+
+
+function totalBagSummary(){
+    let totalBagSummaryElement = document.querySelector('.bag-summary');
+    let totalItem = bagItemObjects.length;
+    let totalMRP = 0;
+    let totalDiscount = 0;
+    let totalItemPrice = 0;
+    
+    
+    bagItemObjects.forEach(bagItem => {
+        totalMRP += bagItem.original_price;
+        totalDiscount += bagItem.original_price - bagItem.current_price;
+        totalItemPrice += totalMRP - totalDiscount;
+    });
+
+    totalItemPrice = totalMRP - totalDiscount + CONVENIENCE_FEE;
+
+
+    totalBagSummaryElement.innerHTML = `
+        <div class="bag-details-container">
+          <div class="price-header">PRICE DETAILS (${totalItem} Items) </div>
+          <div class="price-item">
+            <span class="price-item-tag">Total MRP</span>
+            <span class="price-item-value">Rs${totalMRP}</span>
+          </div>
+          <div class="price-item">
+            <span class="price-item-tag">Discount on MRP</span>
+            <span class="price-item-value priceDetail-base-discount">-Rs${totalDiscount}</span>
+          </div>
+          <div class="price-item">
+            <span class="price-item-tag">Convenience Fee</span>
+            <span class="price-item-value">Rs 99</span>
+          </div>
+          <hr>
+          <div class="price-footer">
+            <span class="price-item-tag">Total Amount</span>
+            <span class="price-item-value">Rs ${totalItemPrice}</span>
+          </div>
+        </div>
+        <button class="btn-place-order">
+          <div class="css-xjhrni">PLACE ORDER</div>
+        </button>
+    `;
+}
+
+
+
 
 function bagItemContainerObjects(){
     bagItemObjects = bagItems.map(itemId => {
@@ -18,7 +67,6 @@ function bagItemContainerObjects(){
         }
     })
 }
-console.log(bagItemObjects);
 
 
 function displayBagItems(){
@@ -29,6 +77,16 @@ function displayBagItems(){
         innerHTML += displayBagItemHtml(bagItem);
     });
     bagitemContainer.innerHTML = innerHTML;
+}
+
+
+function removeFromBag(itemId){
+    bagItems = bagItems.filter(bagItemId => bagItemId != itemId);
+    localStorage.setItem('bagItem', JSON.stringify(bagItems));
+    bagItemContainerObjects();
+    updateBagItemCount();
+    displayBagItems();
+    totalBagSummary();
 }
 
 
@@ -54,7 +112,7 @@ function displayBagItemHtml(item){
                 <span class="delivery-details-days">${item.delivery_date}</span>
               </div>
             </div>
-            <div class="remove-from-cart">X</div>
+            <div class="remove-from-cart" onclick = "removeFromBag(${item.id})">X</div>
         </div>
     `;
 }
